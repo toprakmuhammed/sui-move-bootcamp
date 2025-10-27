@@ -21,11 +21,11 @@ fun init(ctx: &mut TxContext) {
 }
 
 public fun register_user(name: String, users_counter: &mut UsersCounter, ctx: &mut TxContext) {
-    users_counter.count = users_counter.count + 1;
     let user_registered = UserRegistered {
         owner: tx_context::sender(ctx),
         name,
         user_id: users_counter.count,
     };
+    users_counter.count = users_counter.count + 1;
     event::emit(user_registered);
 }
