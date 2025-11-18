@@ -7,6 +7,7 @@ use sui::dynamic_object_field;
 use std::string::{String};
 #[test_only]
 use sui::test_scenario;
+use std::u64;
 
 const EInvalidNumber: u64 = 601;
 
@@ -106,6 +107,11 @@ public struct Item has key, store {
     value: u64,
 }
 
+public struct Item2 has key, store {
+    id: UID,
+    value: u64,
+}
+
 #[test]
 fun test_dynamic_fields() {
     let mut test_scenario = test_scenario::begin(@0xCAFE);
@@ -115,10 +121,28 @@ fun test_dynamic_fields() {
 
     // PART 1: Dynamic Fields
     dynamic_field::add(&mut container.id, b"score", 100u64);
-    let score = dynamic_field::borrow(&container.id, b"score");
+    // İki farklı field daha ekleyin.
+    dynamic_field::add(&mut container.id, b"time", 10);
+    dynamic_field::add(&mut container.id, b"faul", 2);
+    let score = dynamic_field::borrow<vector<u8>, u64>(&container.id, b"score");
+    // İki farklı borrow daha yapın.
+    let time: &u64 = dynamic_field::borrow<vector<u8>, u64>(&container.id, b"time");
+    let faul: &u64 = dynamic_field::borrow<vector<u8>, u64>(&container.id, b"faul");
+    assert!(time == 10, 124);
+    assert!(faul == 2, 125);
     assert!(score == 100, 123);
     dynamic_field::remove<vector<u8>, u64>(&mut container.id, b"score");
-    assert!(!dynamic_field::exists_(&container.id, b"score"), 124);
+    assert!(!dynamic_field::exists_(&container.id, b"score"), 123);
+    dynamic_field::remove<vector<u8>, u64>(&mut container.id, b"time");
+    dynamic_field::remove<vector<u8>, u64>(&mut container.id, b"faul");
+    //Vector tipini kullanma sebebimiz b"" ile başlayan stringleri temsil etmek.
+    assert!(dynamic_field::exists_(&container.id, b"time") == false, 124);
+    assert!(dynamic_field::exists_(&container.id, b"faul") == false, 125);
+
+    //Task: Item2 objesini üstte tanımlayın
+    //Item2 objesini aşağıdaki gibi oluşturup dof'a ekleyin.
+    //Test edin, test pass olmalı.
+
 
     // PART 2: Dynamic Object Fields
     let item = Item {
@@ -132,6 +156,19 @@ fun test_dynamic_fields() {
     assert!(!dynamic_object_field::exists_(&container.id, b"item"), 126);
     let Item { id, value: _ } = item;
     object::delete(id);
+
+    let item2 = Item2 {
+        id: object::new(test_scenario.ctx()),
+        value: 750,
+    };
+
+    dynamic_object_field::add(&mut container.id, b"item2", item2);
+    let item2_ref = dynamic_object_field::borrow<vector<u8>, Item2>(&container.id, b"item2");
+    assert!(item2_ref.value == 750, 127);
+    let item2 = dynamic_object_field::remove<vector<u8>, Item2>(&mut container.id, b"item2");
+    assert!(!dynamic_object_field::exists_(&container.id, b"item2"), 128);
+    let Item2 { id, value: _ } = item2;
+    object::delete(id); 
 
     // Clean up
     let Container {
