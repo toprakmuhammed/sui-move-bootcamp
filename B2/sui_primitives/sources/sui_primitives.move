@@ -8,45 +8,93 @@ use std::string::{String};
 #[test_only]
 use sui::test_scenario;
 
+const EInvalidNumber: u64 = 601;
+
 #[test]
 fun test_numbers() {
     let a = 50;
     let b = 50;
     assert!(a == b, 601);
+
+    //Task 1 : A ile b'yi toplayıp değerini kontrol et.
+
+    let c = a + b;
+    assert!(c == 100, 404);
 }
 
-#[test]
+#[test, expected_failure]
 fun test_overflow() {
-    let a = 500;
-    let b = 500;
+    let a: u8 = 255;
+    let b: u8 = 1;
 
-    assert!(1000 == 1000u16, 604);
+    assert!(a + b == 0, 604);
+
+    //
 }
 
 #[test]
-fun test_mutability() {}
+fun test_mutability() {
+    let mut a = 10;
+    a = a + 20;
+
+}
 
 #[test]
-fun test_boolean() {}
+fun test_boolean() {
+    let a = 200;
+    let b = 500;
+    let c = b > a;
+    assert!(c, EInvalidNumber);
+    // TAsk 2: ki tane integer sayı tutun biri diğerinden büyük mü diye kontrol edin
+
+}
 
 #[test]
-fun test_loop() {}
+fun test_loop() {
+
+    let mut result = 1;
+    let mut i = 2;
+    while (i <= 5) {
+        result = result * i;
+        i = i + 1;
+        std::debug::print(&result);
+        std::debug::print(&i);
+    };
+    assert!(result == 120, 608);
+
+}
 
 #[test]
 fun test_vector() {
     let mut myVec: vector<u8> = vector[10, 20, 30];
 
-    assert!(myVec.is_empty() == true);
+    assert!(myVec.length() == 3, 609);
+
+    assert!(myVec.is_empty(), 610);
+
+    while (myVec.length() > 0) {
+        myVec.pop_back();
+    };
+
+    //Bir döngü açıp vektörün içindeki değerlerin uzunluğu 0 olana kadar pop_back yapın.
+    //Buna bakalım
+    assert!(myVec.length() == 0, 611);
+    assert!(myVec.is_empty(), 610);
 }
 
 #[test]
 fun test_string() {
     let myStringArr: vector<u8> = b"Hello, World!";
+
+    //ikinci indexin değerinin 108'e eşit olup olmadığını test edin
+    assert!(myStringArr[2] == 108, 613);
 }
 
 #[test]
 fun test_string2() {
     let myStringArr = b"Hello, World!";
+    //Task 6: W'nun idexini bulalım. W = 87
+    assert!(myStringArr[7] == 87, 666);
 }
 
 public struct Container has key {
