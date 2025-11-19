@@ -8,12 +8,15 @@ const mistToSui = (b: CoinBalance) =>
 test("SuiClient: getBalance + faucet (devnet)", async () => {
   // 1) Address to fund (must be a valid Sui address)
   const MY_ADDRESS =
-    "0xf38a463604d2db4582033a09db6f8d4b846b113b3cd0a7c4f0d4690b3fe6aa37";
+    "0xd700f7be194c20379338d14b0815383b4558d06544e340644480482326aca6a1";
 
   // 2) Initialize client (devnet)
   const suiClient = new SuiClient({ url: getFullnodeUrl("devnet") });
 
   // 3) Balance BEFORE
+
+  const before = await suiClient.getAllBalances({ owner: MY_ADDRESS });
+  console.log("before: ", before);
 
   // 4) Request from faucet (devnet)
   await requestSuiFromFaucetV2({
@@ -24,12 +27,15 @@ test("SuiClient: getBalance + faucet (devnet)", async () => {
   // Wait 2 seconds before checking balance
   await new Promise((r) => setTimeout(r, 2000));
 
-  // 5) Balance AFTER (no polling, just one check)
+  //5) Balance AFTER (no polling, just one check)
+
+  const after = await suiClient.getAllBalances({ owner: MY_ADDRESS });
+  console.log("after: ", after);
 
   // 6) Assert it increased
-  expect(Number(after.totalBalance)).toBeGreaterThan(
-    Number(before.totalBalance)
+  expect(Number(after[0].totalBalance)).toBeGreaterThan(
+    Number(before[0].totalBalance)
   );
-  console.log(`Before: ${mistToSui(before)} SUI`);
-  console.log(`After : ${mistToSui(after)} SUI`);
+  console.log(`Before: ${mistToSui(before[0])} SUI`);
+  console.log(`After : ${mistToSui(after[0])} SUI`);
 });

@@ -25,6 +25,7 @@ describe("Transfer SUI amount", () => {
   });
 
   test("SUI Balance Changes", () => {
+    console.log("balanceChanges :", txResponse.balanceChanges);
     expect(txResponse.balanceChanges).toBeDefined();
     const balanceChanges = parseBalanceChanges({
       balanceChanges: txResponse.balanceChanges!,

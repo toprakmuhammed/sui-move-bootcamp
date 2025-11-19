@@ -25,7 +25,7 @@ public fun create_hero(_: &AdminCap, name: String, ctx: &mut TxContext): Hero {
     Hero {
         id: object::new(ctx),
         name,
-    }
+    }   
 }
 
 public fun transfer_hero(_: &AdminCap, hero: Hero, to: address) {

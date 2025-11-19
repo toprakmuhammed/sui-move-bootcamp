@@ -18,7 +18,9 @@ describe("Cap Ownership", () => {
   it("should fail for not owned admin cap", async () => {
     const result = await mintHero("test", admin2, process.env.ADMIN_CAP_ID!);
 
-    expect((result as Error).message).toContain("IncorrectUserSignature");
+    expect((result as Error).message).toContain(
+      "Transaction was not signed by the correct sender"
+    );
   });
 
   it("should work after minting and transferring a new admin cap", async () => {

@@ -15,6 +15,8 @@ describe("Get Hero", () => {
   });
 
   test("Hero Exists", () => {
+    // console.log("resp :", objectResponse);
+    // console.log("data :", objectResponse.data);
     expect(objectResponse.data).toBeDefined();
     expect(objectResponse.data!.objectId).toBe(HERO_OBJECT_ID);
     expect(objectResponse.data!.type).toBe(`${ENV.PACKAGE_ID}::hero::Hero`);
@@ -22,6 +24,7 @@ describe("Get Hero", () => {
 
   test("Hero Content", () => {
     const hero: Hero = parseHeroContent(objectResponse);
+    console.log("hero :", hero);
     expect(hero.id).toBe(HERO_OBJECT_ID);
     expect(hero.stamina).toBeDefined();
     expect(hero.health).toBeDefined();
