@@ -50,6 +50,8 @@ fun test_boolean() {
 
 }
 
+
+//Faktöriyel hesabı.
 #[test]
 fun test_loop() {
 

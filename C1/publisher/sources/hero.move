@@ -9,20 +9,38 @@ module publisher::hero {
         name: String,
     }
 
-    fun init(ctx: &mut TxContext) {
+    //OTW
+
+    public struct HERO has drop {}
+
+    fun init(otw: HERO,ctx: &mut TxContext) {
         // create Publisher and transfer it to the publisher wallet
+        package::claim_and_keep(otw, ctx)
+
     }
 
     public fun create_hero(publisher: &Publisher, name: String, ctx: &mut TxContext): Hero {
+        assert!(publisher.from_module<HERO>(), EWrongPublisher);
         // verify that publisher is from the same module
 
-        // create Hero resource
+        // Yeni bir hero oluşturup return et.
+
+        Hero {
+            id: object::new(ctx),
+            name
+        }
+
+        
     }
 
     public fun transfer_hero(publisher: &Publisher, hero: Hero, to: address) {
-        // verify that publisher is from the same module
 
-        // transfer the Hero resource to the user
+        assert!(publisher.from_module<HERO>(), EWrongPublisher);
+
+        // Üstteki gibi publisherı kontrol et.
+
+        // Heroyu to'ya transfer et. 
+        transfer::transfer(hero, to)
     }
 
     // ===== TEST ONLY =====
@@ -78,6 +96,30 @@ module publisher::hero {
     #[test]
     fun test_admin_can_transfer_hero() {
         // TODO: Implement test
+        // Task 1: Testleri başarıyla tamamla. 
+        // 1. Senaryoyu başlat (ADMIN).
+        let mut test = ts::begin(ADMIN);
+        // 2. init fonksiyonunu çağır.
+        init(HERO {}, test.ctx());
+        // 3. diğer tx'e geç. (ADMIN)
+        test.next_tx(ADMIN);
+        // 4. Publisher objesini kullanıcıdan al. 
+        // 4.1. test.take_from_sender<Publisher>() (fonksiyonunu kullan)
+        let publisher = test.take_from_sender<Publisher>();
+        // 5. create_hero fonksiyonunu çağır. (Dikkat et bu fonksiyon retun yapıyor.)
+        let hero = create_hero(&publisher, b"Hero 1".to_string(), test.ctx());
+        // 6. transfer_hero fonksiyonunu çağır (User'a transfer et.)
+        transfer_hero(&publisher, hero, USER);
+        // 7. diğer tx'e geç. (ADMIN)
+        test.next_tx(ADMIN);
+        // 8. test::has_most_recent_for_address<Hero>(USER) kullanarak kullanıcıda Hero olduğunu doğrula.
+        assert!(ts::has_most_recent_for_address<Hero>(USER), 101);
+        // 9. Temizlik.
+        // 9.1. test.return_to_sender(publisher) yap.
+        test.return_to_sender(publisher);
+        //10. testi bitir.
+        test.end();
+       
     }
 }
 
