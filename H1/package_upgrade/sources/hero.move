@@ -6,11 +6,20 @@ use sui::dynamic_field as df;
 use sui::dynamic_object_field as dof;
 use sui::package;
 
+
 use package_upgrade::blacksmith::{Shield, Sword};
 use package_upgrade::version::Version;
+use sui::package::Publisher;
+use sui::coin::Coin;
+use sui::sui::SUI;
+
+const HERO_PRICE: u64 = 100_000_000;
+const PAYMENT_RECEIVER: address = @0x1;
 
 const EAlreadyEquipedShield: u64 = 0;
 const EAlreadyEquipedSword: u64 = 1;
+const EUseMintHeroV2Instead: u64 = 2;
+const EInvalidPrice: u64 = 3;
 
 public struct HERO() has drop;
 
@@ -18,7 +27,7 @@ public struct HERO() has drop;
 public struct Hero has key, store {
     id: UID,
     health: u64,
-    stamina: u64,
+    stamina: u64
 }
 
 fun init(otw: HERO, ctx: &mut TxContext) {
@@ -28,17 +37,28 @@ fun init(otw: HERO, ctx: &mut TxContext) {
 /// Anyone can mint a hero.
 /// Hero starts with 100 heath and 10 stamina.
 public fun mint_hero(version: &Version, ctx: &mut TxContext): Hero {
+    abort(EUseMintHeroV2Instead)
+}
+
+public fun mint_hero_v2(version: &Version, payment: Coin<SUI>, ctx: &mut TxContext): Hero {
+    //1. Yukarıdan kopya çekip version kontrolü yap.
     version.check_is_valid();
-    Hero {
+    //2. Yeni bir hero oluştur. 
+    let hero = Hero {
         id: object::new(ctx),
         health: 100,
         stamina: 10
-    }
+    };
+    //3. Payment value HERO_PRICE'a eşit mi değil mi kontrol et. 
+    assert!(payment.value()== HERO_PRICE, EInvalidPrice);
+    //4. Payment'ı PAYMENT_RECEIVER'a yolla
+    transfer::public_transfer(payment, PAYMENT_RECEIVER);
+    //5. Heroyu return et.
+    hero
+
 }
 
-// Task: Implement mint_hero_v2 that accepts payment
-// public fun mint_hero_v2(version: &Version, payment: Coin<SUI>, ctx: &mut TxContext): Hero {
-// }
+
 
 /// Hero can equip a single sword.
 public fun equip_sword(self: &mut Hero, version: &Version, sword: Sword) {

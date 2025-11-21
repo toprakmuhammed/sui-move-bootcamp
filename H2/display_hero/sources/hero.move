@@ -1,7 +1,6 @@
 module display::hero;
 use std::string::String;
 use sui::display;
-use sui::package;
 
 public struct HERO has drop {}
 
@@ -13,8 +12,26 @@ public struct Hero has key, store {
 
 fun init(otw: HERO, ctx: &mut TxContext) {
     let publisher = package::claim(otw, ctx);
+    let keys = vector[b"name".to_string(), b"image_url".to_string(), b"description".to_string()]
+    
+    let values = vector [
+        b"My Name is {name}".to_string(),
+        b"https://aggregator.walrus-testnet.walrus.space/v1/blobs/{blob_id}".to_string(),
+        b"I'm {name} - I like SUI <3".to_string()
+    ];
 
-    // setup the display
+
+    let mut display = display::new_with_fields<Hero>(
+    &publisher,
+    keys,
+    values,
+    ctx
+    );
+
+    display.update_version();
+
+    transfer::public_transfer(publisher, ctx.sender());
+    transfer::public_transfer(display, ctx.sender()); 
 }
 
 public fun mint(name: String, blob_id: String, ctx: &mut TxContext): Hero {

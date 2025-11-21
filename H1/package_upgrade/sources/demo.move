@@ -3,6 +3,7 @@ module package_upgrade::my_module {
     use sui::coin::Coin;
     use sui::sui::SUI;
 
+
     // @0xaaaaa::my_module::SharedBalancePool
     public struct SharedBalancePool has key {
         id: UID,
@@ -38,6 +39,7 @@ module package_upgrade::same_my_module {
         id: UID,
         balance: Balance<SUI>,
     }
+
 
     // @bbbbbb::my_module::important_function
     public fun important_function(pool: &mut SharedBalancePool): Coin<SUI> {
